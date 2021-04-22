@@ -1,0 +1,49 @@
+name: CICD
+
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@main
+
+      - name: Set Node.js 14
+        uses: actions/setup-node@main
+        with:
+          node-version: 14
+
+      - name: Prepare
+        run: |
+          npm i
+      - name: Lint
+        run: |
+          npm run lint
+      - name: Tests
+        run: |
+          npm test -- --browsers ChromeHeadlessNoSandbox --watch=false
+      - name: Build
+        run: |
+          npm run build
+
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@main
+
+      - name: Use Node.js 14
+        uses: actions/setup-node@main
+        with:
+          node-version: 14
+
+      - name: Deploy to Gihub-Pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npm i
+          npm run ng -- deploy --base-href=/feedme/ --name="Ammar Najjar" --email="najjarammar@protonmail.com" --no-silent
